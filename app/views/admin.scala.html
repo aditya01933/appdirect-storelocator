@@ -1,0 +1,15 @@
+@(companies: Seq[Company], users: Seq[User])(implicit pageContext: PageContext)
+
+@main("Admin", "admin") {
+
+    <h2>Companies</h2>
+    @for(company <- companies) {
+        @views.html.fragments.company(company, users filter (_.companyId == company.id))
+    }
+
+    <h2>Unassociated Users</h2>
+    @for(user <- users filter (_.companyId.isEmpty)) {
+        @views.html.fragments.user(user)
+    }
+
+}

@@ -1,0 +1,9 @@
+body { padding-top: 70px; }
+.footer {
+  border-top: 1px solid #e7edf9;
+  margin-top: 20px;
+    padding: 20px 0;
+}
+.flash-message {
+    padding: 15px;
+}

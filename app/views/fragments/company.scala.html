@@ -1,0 +1,17 @@
+@(company: Company, users: Seq[User])
+
+<div class="media">
+    <div class="media-left">
+        <i class="fa fa-group fa-3x"></i>
+    </div>
+    <div class="media-body">
+        <h4 class="media-heading">@company.name</h4>
+        <p>Edition: <i>@company.edition</i></p>
+        <h4>Users</h4>
+        <ul class="list-unstyled">
+            @for(companyUser <- users) {
+            <li>@views.html.fragments.user(companyUser)</li>
+            }
+        </ul>
+    </div>
+</div>

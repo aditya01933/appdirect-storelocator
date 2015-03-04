@@ -1,0 +1,17 @@
+#
+# Sample config file used by the gcloud-deploy script.
+#
+
+## SBT <-> Docker settings
+# These should stay in sync with build.sbt
+APP_NAME=appdirect-storelocator
+APP_VERSION=1.0-SNAPSHOT
+
+## Google Cloud properties
+# See https://console.developers.google.com/project
+GCLOUD_PROJECT=store-locator-XXXXX
+GCLOUD_ZONE=us-central1-b
+GCLOUD_NODE=k8s-cluster-1-node-1
+GCLOUD_CLUSTER=cluster-1
+
+# vim: set filetype=sh

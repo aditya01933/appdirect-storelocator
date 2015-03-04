@@ -1,0 +1,14 @@
+@(user: User)
+
+<div class="media">
+    <div class="media-left">
+        <i class="fa fa-user fa-3x"></i>
+    </div>
+    <div class="media-body">
+        <h4 class="media-heading">@user.firstName @user.lastName</h4>
+        <ul class="list-unstyled">
+            <li>Email: <a href="mailto:@user.email">@user.email</a>
+            <li>OpenID: <a href="@user.openId">@user.openId</a>
+        </ul>
+    </div>
+</div>

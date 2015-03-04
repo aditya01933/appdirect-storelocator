@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Install dependencies for DGrep on Ubuntu
+
+###############################################################################
+# Based on the Oracle Java 7 Dockerfile
+#  - https://github.com/dockerfile/java/tree/master/oracle-java7
+
+# Update system and pull in basic utilities.
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -y upgrade && \
+  apt-get install -y build-essential && \
+  apt-get install -y software-properties-common && \
+  apt-get install -y byobu curl git htop man unzip vim wget && \
+  rm -rf /var/lib/apt/lists/*
+
+# Install Java.
+  echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+  add-apt-repository -y ppa:webupd8team/java && \
+  apt-get update && \
+  apt-get install -y oracle-java7-installer && \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /var/cache/oracle-jdk7-installer

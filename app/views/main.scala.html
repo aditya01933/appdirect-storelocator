@@ -1,0 +1,71 @@
+@(title: String, tab: String = "", styles: Html = Html(""), scripts: Html = Html(""), modals: Html = Html(""))(content: Html)(implicit pageContext: PageContext)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@title</title>
+        <link rel="icon" href="@routes.Assets.at("images/favicon.ico")">
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("lib/bootstrap/css/bootstrap.min.css")">
+		<link rel="stylesheet" media="screen" href="@routes.Assets.at("lib/font-awesome/css/font-awesome.min.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+		@styles
+		<script src="@routes.Assets.at("lib/jquery/jquery.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("lib/bootstrap/js/bootstrap.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
+        @scripts
+    </head>
+    <body tab="@tab">
+		<div class="header navbar navbar-default navbar-fixed-top">
+			<div class="container">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+					<a class="navbar-brand @("active".when(tab == "index"))" href="@routes.Application.index">Store Locator</a>
+					<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div class="navbar-collapse collapse" id="navbar-main">
+					<ul class="nav navbar-nav">
+						<li class="@("active".when(tab == "admin"))"><a href="@routes.Application.admin">Admin</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+					    @if(pageContext.userName.isDefined && pageContext.openId.isDefined) {
+						     <li><a href="@pageContext.openId.get">Signed in as @pageContext.userName.get</a></li>
+						     <li><a href="@routes.Application.logout"><i class="fa fa-signout"></i> Logout</a></li>
+                        } else {
+						     <li><a href="@routes.Application.login"><i class="fa fa-openid"></i> Login</a></li>
+                        }
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    @for(message <- pageContext.flash.get("error")) {
+                        <div class="alert alert-danger" role="alert">@message</div>
+                    }
+                    @for(message <- pageContext.flash.get("success")) {
+                        <div class="alert alert-success" role="alert">@message</div>
+                    }
+                    <h1>@title</h1>
+        			@content
+                </div>
+            </div>
+		</div>
+
+		<div class="footer">
+			<div class="container">
+				<p class="text-muted"><a href="https://github.com/jonas/play-bootstrap3" target="_blank"><i class="fa fa-github fa-2x"></i> View on Github</a></p>
+				<p class="text-muted">Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a></p>
+				<p class="text-muted">© 2015 Jonas Fonseca</p>
+			</div>
+		</div>
+		@modals
+    </body>
+</html>

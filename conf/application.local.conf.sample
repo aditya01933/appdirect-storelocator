@@ -1,0 +1,23 @@
+#
+# Sample configuration for overriding settings from application.conf
+#
+
+## OAuth
+# See https://www.appdirect.com/cms/editApp/<app-id>#edit-integration
+# for these values
+appdirect.oauth-consumer-key = "store-locator-XXX"
+appdirect.oauth-consumer-secret = "XXXXXXXXXXXXXXXX"
+
+## OpenID
+# Only override the realm if you need it to work on multiple subdomains.
+#
+# appdirect.openid-url = "https://www.appdirect.com/openid/id"
+# appdirect.openid-realm = "http://*.priorarts.org"
+
+## Database
+# Automatically run the SQL scripts to create all tables
+applyEvolutions.default=true
+# db.default.driver=org.h2.Driver
+# db.default.url="jdbc:h2:mem:play;DB_CLOSE_DELAY=-1"
+# db.default.user=sa
+# db.default.password=""

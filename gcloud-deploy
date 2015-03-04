@@ -1,0 +1,88 @@
+#!/bin/sh
+
+set -eu
+if [ -n "${BASH_VERSION:-}" ]; then
+	set -o pipefail
+	IFS=$'\n\t'
+fi
+
+. conf/gcloud.conf
+
+DOCKER_IMG="$APP_NAME:$APP_VERSION"
+DOCKER_URL="gcr.io/$(echo "$GCLOUD_PROJECT" | tr - _)/$APP_NAME"
+
+gcloud_ssh() {
+	gcloud compute ssh --project "$GCLOUD_PROJECT" \
+			   --zone "$GCLOUD_ZONE" \
+			   $@
+}
+
+gcloud_kubectl() {
+	gcloud preview container --project "$GCLOUD_PROJECT" \
+				 --zone "$GCLOUD_ZONE" \
+				 kubectl \
+				 --cluster "$GCLOUD_CLUSTER" \
+				 $@
+}
+
+build() {
+	set -x
+	./activator clean docker:publishLocal
+	docker tag -f "$DOCKER_IMG" "$DOCKER_URL"
+	set +x
+}
+
+push() {
+	set -x
+	gcloud preview docker push "$DOCKER_URL"
+	set +x
+}
+
+reload() {
+	pod_file=.pod.json
+	trap "rm -f $pod_file" EXIT
+	cat > "$pod_file" <<EOF
+{
+  "ID": "$APP_NAME",
+  "kind": "Pod",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "manifest": {
+      "version": "v1beta1",
+      "containers": [{
+        "name": "play",
+        "image": "$DOCKER_URL",
+        "ports": [{
+          "containerPort": 9000,
+          "hostPort": 80
+        }]
+      }]
+    }
+  }
+}
+EOF
+	set -x
+	gcloud_kubectl delete -f "$pod_file"
+	gcloud_ssh "$GCLOUD_NODE" --command "sudo docker pull $DOCKER_URL"
+	gcloud_kubectl create -f "$pod_file"
+	set +x
+}
+
+log() {
+	container="$(gcloud_ssh "$GCLOUD_NODE" --command "sudo docker ps" | sed -n "s#\([^\s]*\)\s\+$DOCKER_URL.*#\1#p")"
+	gcloud_ssh "$GCLOUD_NODE" --command "sudo docker logs -f $container"
+}
+
+[ $# = 0 ] && set -- help
+
+while [ $# -gt 0 ]; do
+	arg="$1"; shift
+	case "$arg" in
+		log)	log	;;
+		build)	build	;;
+		push)	push ;;
+		reload)	reload ;;
+		all)	build; push; reload; log ;;
+		*)	echo "$0 [build|push|reload|log|all]"; exit 1
+	esac
+done
