@@ -65,6 +65,7 @@ object Integration extends Controller {
         if (flag != EventFlag.STATELESS) {
           val savedCompany = company.save
           creator.copy(companyId = savedCompany.id).save
+          Account(id = company.uuid, AccountStatus.ACTIVE).save
         }
         success(accountId = Some(company.uuid))
 
@@ -79,7 +80,25 @@ object Integration extends Controller {
         withCompany(flag, account.id) { company =>
           for (user <- Users.findByCompanyId(company.id.get))
             user.delete
+          account.delete
           company.delete
+          success()
+        }
+
+      case SubscriptionNotice(flag, noticeType, account) =>
+        withCompany(flag, account.id) { company =>
+          noticeType match {
+            case NoticeType.DEACTIVATED =>
+              account.copy(status = AccountStatus.SUSPENDED).save
+            case NoticeType.REACTIVATED =>
+              account.copy(status = AccountStatus.ACTIVE).save
+            case NoticeType.CLOSED =>
+              for (user <- Users.findByCompanyId(company.id.get))
+                user.delete
+              account.delete
+              company.delete
+            case _ =>
+          }
           success()
         }
 

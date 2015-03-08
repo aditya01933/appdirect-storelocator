@@ -1,4 +1,4 @@
-@(company: Company, users: Seq[User])
+@(company: Company, account: Option[Account], users: Seq[User])
 
 <div class="media">
     <div class="media-left">
@@ -7,6 +7,7 @@
     <div class="media-body">
         <h4 class="media-heading">@company.name</h4>
         <p>Edition: <i>@company.edition</i></p>
+        <p>Status: <i>@account.map(_.status).getOrElse("UNKNOWN")</i></p>
         <h4>Users</h4>
         <ul class="list-unstyled">
             @for(companyUser <- users) {

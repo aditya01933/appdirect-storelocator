@@ -114,5 +114,44 @@ object AccountStatus extends Enumeration {
         = Value
 }
 
-case class Account(id: String, status: AccountStatus.Value)
+case class Account(id: String, status: AccountStatus.Value) {
+
+  def save(implicit s: Session): Account = Accounts.save(this)
+  def delete(implicit s: Session) = Accounts.delete(this)
+
+}
+
+object Accounts {
+
+  implicit val accountStatusMapper = MappedColumnType.base[AccountStatus.Value, Int](
+    { status => status.id },
+    { int => AccountStatus(int) }
+  )
+
+  class AccountTable(tag: Tag) extends Table[Account](tag, "ACCOUNT") {
+    def id = column[String]("id", O.PrimaryKey)
+    def status = column[AccountStatus.Value]("status", O.Nullable)
+    def * = (id, status) <>(Account.tupled, Account.unapply _)
+  }
+
+  val table = TableQuery[AccountTable]
+
+  def findById(id: String)(implicit s: Session): Option[Account] =
+    table.filter(_.id === id).firstOption
+
+  def all()(implicit s: Session): Seq[Account] =
+    table.list
+
+  def save(account: Account)(implicit s: Session): Account = {
+    findById(account.id) map { _ =>
+      table.filter(_.id === account.id).update(account)
+    } getOrElse {
+      table.insert(account)
+    }
+    account
+  }
+
+  def delete(account: Account)(implicit s: Session) =
+    table.filter(_.id === account.id).delete
+
 }

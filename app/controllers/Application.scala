@@ -34,11 +34,16 @@ object Application extends Controller with ApplicationConfiguration {
     } yield user
 
     user map { user =>
-      val (company, users) = user.companyId map { companyId =>
-        (Companies.findById(companyId), Users.findByCompanyId(companyId))
-      } getOrElse (None, Seq.empty)
+      val (company, account, users) = user.companyId match {
+        case Some(companyId) =>
+          val companyOpt = Companies.findById(companyId)
+          val account = companyOpt flatMap (company => Accounts.findById(company.uuid))
+          (companyOpt, account, Users.findByCompanyId(companyId))
+        case None =>
+          (None, None, Seq.empty)
+      }
 
-      Ok(views.html.dashboard(user, company, users))
+      Ok(views.html.dashboard(user, company, account, users))
     } getOrElse {
       Ok(views.html.welcome()).withNewSession
     }
@@ -46,7 +51,7 @@ object Application extends Controller with ApplicationConfiguration {
 
   def admin = DBAction { implicit rs =>
     implicit val ctx = PageContext(rs.request)
-    Ok(views.html.admin(Companies.all, Users.all))
+    Ok(views.html.admin(Companies.all, Users.all, Accounts.all))
   }
 
   def logout = Action { implicit request =>
