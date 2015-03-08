@@ -6,6 +6,12 @@ if [ -n "${BASH_VERSION:-}" ]; then
 	IFS=$'\n\t'
 fi
 
+if [ ! -e conf/gcloud.conf ]; then
+	echo >&2 "Config file not found (conf/gcloud.conf)."
+	echo >&2 "See README.md for how to create it."
+	exit 1
+fi
+
 . conf/gcloud.conf
 
 DOCKER_IMG="$APP_NAME:$APP_VERSION"
