@@ -69,14 +69,14 @@ object Integration extends Controller {
         success(accountId = Some(company.uuid))
 
       case SubscriptionChange(flag, creator, account, edition) =>
-        withCompany(flag, account) { company =>
+        withCompany(flag, account.id) { company =>
           company.copy(edition = edition).save
           creator.copy(companyId = company.id).save
           success()
         }
 
       case SubscriptionCancel(flag, creator, account) =>
-        withCompany(flag, account) { company =>
+        withCompany(flag, account.id) { company =>
           for (user <- Users.findByCompanyId(company.id.get))
             user.delete
           company.delete
@@ -84,7 +84,7 @@ object Integration extends Controller {
         }
 
       case UserAssignment(flag, creator, account, user) =>
-        withCompany(flag, account) { company =>
+        withCompany(flag, account.id) { company =>
           Users.findByOpenId(user.openId).fold({
             Logger.info(s"Assigning $user to $company")
             user.copy(companyId = company.id).save
@@ -96,7 +96,7 @@ object Integration extends Controller {
         }
 
       case UserUnassignment(flag, creator, account, user) =>
-        withCompany(flag, account) { company =>
+        withCompany(flag, account.id) { company =>
           Users.findByOpenId(user.openId).fold({
             Logger.info(s"User not found: $user")
             error(ErrorCode.USER_NOT_FOUND, s"$user")

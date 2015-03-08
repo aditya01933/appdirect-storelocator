@@ -69,15 +69,10 @@ object Companies {
 
   class CompanyTable(tag: Tag) extends Table[Company](tag, "COMPANY") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-
     def name = column[String]("name", O.NotNull)
-
     def website = column[String]("website", O.NotNull)
-
     def edition = column[String]("edition", O.NotNull)
-
     def uuid = column[String]("uuid", O.NotNull)
-
     def * = (id.?, name, website, edition, uuid) <>(Company.tupled, Company.unapply _)
   }
 
@@ -106,4 +101,18 @@ object Companies {
   def delete(company: Company)(implicit s: Session) =
     table.filter(_.id === company.id).delete
 
+}
+
+object AccountStatus extends Enumeration {
+  type AccountStatus = Value
+  val FREE_TRIAL,
+      FREE_TRIAL_EXPIRED,
+      ACTIVE,
+      SUSPENDED,
+      CANCELLED,
+      NONE
+        = Value
+}
+
+case class Account(id: String, status: AccountStatus.Value)
 }

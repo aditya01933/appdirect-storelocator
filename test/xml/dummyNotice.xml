@@ -1,0 +1,16 @@
+<event>
+    <type>SUBSCRIPTION_NOTICE</type>
+    <marketplace>
+        <partner>ACME</partner>
+        <baseUrl>https://www.acme-marketplace.com</baseUrl>
+    </marketplace>
+    <payload>
+        <account>
+            <accountIdentifier>MY_ACCOUNT</accountIdentifier>
+            <status>FREE_TRIAL_EXPIRED</status>
+        </account>
+        <notice>
+            <type>DEACTIVATED</type>
+        </notice>
+    </payload>
+</event>

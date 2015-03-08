@@ -27,6 +27,8 @@ class EventSpec extends Specification {
     openId = "https://www.appdirect.com/openid/id/ec5d8eda-5cec-444d-9e30-125b6e4b67e2"
   )
 
+  val ACCOUNT = Account("dummy-account", AccountStatus.ACTIVE)
+
   "Event Request parsing" should {
 
     "parse Subscription Order" in {
@@ -52,7 +54,7 @@ class EventSpec extends Specification {
       maybe.get must beAnInstanceOf[SubscriptionChange]
 
       val event = maybe.get.asInstanceOf[SubscriptionChange]
-      event.account mustEqual "dummy-account"
+      event.account mustEqual ACCOUNT
       event.edition mustEqual "PREMIUM"
       event.creator mustEqual CREATOR
     }
@@ -65,8 +67,20 @@ class EventSpec extends Specification {
       maybe.get must beAnInstanceOf[SubscriptionCancel]
 
       val event = maybe.get.asInstanceOf[SubscriptionCancel]
-      event.account mustEqual "dummy-account"
+      event.account mustEqual ACCOUNT
       event.creator mustEqual CREATOR
+    }
+
+    "parse Subscription Notice" in {
+      val xml = load("test/xml/dummyNotice.xml")
+
+      val maybe = Event(xml)
+      maybe mustNotEqual None
+      maybe.get must beAnInstanceOf[SubscriptionNotice]
+
+      val event = maybe.get.asInstanceOf[SubscriptionNotice]
+      event.account mustEqual Account("MY_ACCOUNT", AccountStatus.FREE_TRIAL_EXPIRED)
+      event.noticeType mustEqual NoticeType.DEACTIVATED
     }
 
     "parse User Assignment" in {
@@ -77,7 +91,7 @@ class EventSpec extends Specification {
       maybe.get must beAnInstanceOf[UserAssignment]
 
       val event = maybe.get.asInstanceOf[UserAssignment]
-      event.account mustEqual "dummy-account"
+      event.account mustEqual ACCOUNT
       event.creator mustEqual CREATOR
       event.user mustEqual USER
     }
@@ -90,9 +104,15 @@ class EventSpec extends Specification {
       maybe.get must beAnInstanceOf[UserUnassignment]
 
       val event = maybe.get.asInstanceOf[UserUnassignment]
-      event.account mustEqual "dummy-account"
+      event.account mustEqual ACCOUNT
       event.creator mustEqual CREATOR
       event.user mustEqual USER
+    }
+
+    "gracefully handle missing creator element" in {
+      val xml = load("test/xml/dummyOrderWithMissingCreator.xml")
+
+      Event(xml) must throwA[IllegalArgumentException]("requirement failed: Missing creator element")
     }
 
     "gracefully handle unknown event types" in {
