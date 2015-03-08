@@ -7,7 +7,7 @@
 /.settings
 /.vagrant
 /RUNNING_PID
-/conf/application.local.conf
+/conf/application.*.conf
 /conf/gcloud.conf
 /out
 /project/project
