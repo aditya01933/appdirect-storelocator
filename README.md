@@ -5,14 +5,6 @@ and OpenID for SSO to integrate with AppDirect's platform. By default it
 uses an H2 in-memory database for "persistence" and Slick for
 interfacing with the database.
 
-To run the app five possibilities are provided:
-
- * As a "native" Play application locally.
- * As a "native" Play application inside a Docker container.
- * As a "native" Play application inside a VM.
- * As a Tomcat webapp inside a VM.
- * As a "native" Play application in Google Cloud (inside a Docker container).
-
 ## Getting started
 
 NOTE: The application requires that Java is installed.
@@ -25,7 +17,13 @@ To start the application:
 
     $ ./activator run
 
-See below for other ways to run the application.
+See below for other ways to run the application:
+
+ * [Inside a Docker container](#running-the-application-inside-docker).
+ * [Inside a Vagrant-managed VM](#running-as-play-app).
+ * [As a Tomcat webapp inside a Vagrant-managed VM](#running-as-tomcat-webapp).
+ * [In Google Cloud](#deploying-to-google-cloud) (inside a Docker container).
+
 
 ## Configure the application
 
