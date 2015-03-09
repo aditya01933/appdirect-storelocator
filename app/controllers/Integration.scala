@@ -135,7 +135,7 @@ object Integration extends Controller {
 
   def withCompany(flag: EventFlag.Value, accountId: String)(found: Company => NodeSeq)(implicit session: Session): NodeSeq = {
     def notFound = {
-      if (flag == EventFlag.STATELESS) Logger.error(s"Account not found: $accountId")
+      if (flag != EventFlag.STATELESS) Logger.error(s"Account not found: $accountId")
       error(ErrorCode.ACCOUNT_NOT_FOUND, accountId)
     }
 
