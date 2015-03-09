@@ -64,7 +64,7 @@ object Integration extends Controller {
       case SubscriptionOrder(flag, creator, company) =>
         if (flag != EventFlag.STATELESS) {
           val savedCompany = company.save
-          creator.copy(companyId = savedCompany.id).save
+          creator.copy(companyId = savedCompany.id, creator = true).save
           Account(id = company.uuid, AccountStatus.ACTIVE).save
         }
         success(accountId = Some(company.uuid))
@@ -72,7 +72,6 @@ object Integration extends Controller {
       case SubscriptionChange(flag, creator, account, edition) =>
         withCompany(flag, account.id) { company =>
           company.copy(edition = edition).save
-          creator.copy(companyId = company.id).save
           success()
         }
 
@@ -120,9 +119,15 @@ object Integration extends Controller {
             Logger.info(s"User not found: $user")
             error(ErrorCode.USER_NOT_FOUND, s"$user")
           })({ existingUser =>
-            Logger.info(s"Unassigning $user from $company")
-            existingUser.delete
-            success()
+            existingUser.creator match {
+              case true =>
+                Logger.error(s"Cannot unassign creator: $existingUser")
+                error(ErrorCode.UNAUTHORIZED, "Cannot unassign the creator")
+              case false =>
+                Logger.info(s"Unassigning $user from $company")
+                existingUser.delete
+                success()
+            }
           })
         }
     }

@@ -3,7 +3,14 @@ package models
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
 
-case class User(id: Option[Long] = None, email: String = "", firstName: String = "", lastName: String = ""  , openId: String, companyId: Option[Long] = None) {
+case class User(
+  id: Option[Long] = None,
+  email: String = "",
+  firstName: String = "",
+  lastName: String = "",
+  openId: String,
+  companyId: Option[Long] = None,
+  creator: Boolean = false) {
 
   def save(implicit s: Session): User = Users.save(this)
   def delete(implicit s: Session) = Users.delete(this)
@@ -24,7 +31,8 @@ object Users {
     def lastName  = column[String]("lastName", O.NotNull)
     def openId    = column[String]("openId", O.NotNull)
     def companyId = column[Long]("companyId", O.Nullable)
-    def * = (id.?, email, firstName, lastName, openId, companyId.?) <> (User.tupled, User.unapply _)
+    def creator   = column[Boolean]("creator", O.Nullable)
+    def * = (id.?, email, firstName, lastName, openId, companyId.?, creator) <> (User.tupled, User.unapply _)
   }
 
   val table = TableQuery[UserTable]
