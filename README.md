@@ -7,7 +7,7 @@ interfacing with the database.
 
 ## Getting started
 
-NOTE: The application requires that Java is installed.
+NOTE: The application requires that Java 7 is installed.
 
 To run the tests:
 
