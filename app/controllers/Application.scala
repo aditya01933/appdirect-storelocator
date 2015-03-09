@@ -70,16 +70,18 @@ object Application extends Controller with ApplicationConfiguration {
   def loginVerify = Action.async { implicit request =>
     OpenID.verifiedId map { info =>
       Logger.info(s"Login: verified openID ${info.id} - ${info.attributes}")
-      val user: User = DB.withSession { implicit session =>
-        // FIXME: Update user
-        Users.findByOpenId(info.id) getOrElse {
-          User(openId = info.id).save
+      DB.withSession { implicit session =>
+        Users.findByOpenId(info.id) match {
+          case Some(user) =>
+            Redirect(routes.Application.index)
+              .withSession(PageContext.OPENID -> user.openId, PageContext.USER_NAME -> user.name)
+              .flashing("success" -> s"You are logged in as ${user.name}")
+
+          case None =>
+            Redirect(routes.Application.index)
+              .flashing("error" -> s"You do not have an account")
         }
       }
-
-      Redirect(routes.Application.index)
-        .withSession(PageContext.OPENID -> user.openId, PageContext.USER_NAME -> user.name)
-        .flashing("success" -> s"You are logged in as ${user.name}")
 
     } recover {
       case t: Throwable =>

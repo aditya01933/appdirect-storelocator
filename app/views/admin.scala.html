@@ -7,9 +7,4 @@
         @views.html.fragments.company(company, accounts.find(_.id == company.uuid), users filter (_.companyId == company.id))
     }
 
-    <h2>Unassociated Users</h2>
-    @for(user <- users filter (_.companyId.isEmpty)) {
-        @views.html.fragments.user(user)
-    }
-
 }
