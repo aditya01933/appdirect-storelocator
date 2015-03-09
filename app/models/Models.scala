@@ -44,12 +44,13 @@ object Users {
   def save(user: User)(implicit s: Session): User = {
     require(user.openId nonEmpty, "Invalid user ID")
     val userId: Option[Long] = user.id orElse Users.findByOpenId(user.openId).flatMap(_.id)
-    userId map { id =>
-      Users.table.filter(_.id === id).update(user.copy(id = Some(id)))
-      user
-    } getOrElse {
-      val id = Users.table.insert(user)
-      user.copy(id = Some(id))
+    userId match {
+      case Some(id) =>
+        Users.table.filter(_.id === id).update(user.copy(id = Some(id)))
+        user
+      case None =>
+        val id = Users.table.insert(user)
+       user.copy(id = Some(id))
     }
   }
 
@@ -89,12 +90,13 @@ object Companies {
 
   def save(company: Company)(implicit s: Session): Company = {
     val companyId = company.id orElse findByUuid(company.uuid).flatMap(_.id)
-    companyId map { id =>
-      table.filter(_.id === id).update(company)
-      company
-    } getOrElse {
-      val id = table.insert(company)
-      company.copy(id = Some(id))
+    companyId match {
+      case Some(id) =>
+        table.filter(_.id === id).update(company)
+        company
+      case None =>
+        val id = table.insert(company)
+        company.copy(id = Some(id))
     }
   }
 
@@ -143,10 +145,9 @@ object Accounts {
     table.list
 
   def save(account: Account)(implicit s: Session): Account = {
-    findById(account.id) map { _ =>
-      table.filter(_.id === account.id).update(account)
-    } getOrElse {
-      table.insert(account)
+    findById(account.id) match {
+      case Some(_) => table.filter(_.id === account.id).update(account)
+      case None    => table.insert(account)
     }
     account
   }
