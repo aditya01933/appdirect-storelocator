@@ -28,25 +28,16 @@ object Application extends Controller with ApplicationConfiguration {
   def index = DBAction { implicit rs =>
     implicit val ctx = PageContext(rs.request)
 
-    val user = for {
-      openId <- ctx.openId
-      user   <- Users.findByOpenId(openId)
-    } yield user
+    val result = for {
+      openId    <- ctx.openId
+      user      <- Users.findByOpenId(openId)
+      companyId <- user.companyId
+      company   <- Companies.findById(companyId)
+      account   <- Accounts.findById(company.uuid)
+      users     = Users.findByCompanyId(companyId)
+    } yield Ok(views.html.dashboard(user, company, account, users))
 
-    user map { user =>
-      val (company, account, users) = user.companyId match {
-        case Some(companyId) =>
-          val companyOpt = Companies.findById(companyId)
-          val account = companyOpt flatMap (company => Accounts.findById(company.uuid))
-          (companyOpt, account, Users.findByCompanyId(companyId))
-        case None =>
-          (None, None, Seq.empty)
-      }
-
-      Ok(views.html.dashboard(user, company, account, users))
-    } getOrElse {
-      Ok(views.html.welcome()).withNewSession
-    }
+    result getOrElse Ok(views.html.welcome()).withNewSession
   }
 
   def admin = DBAction { implicit rs =>

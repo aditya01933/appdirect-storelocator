@@ -1,4 +1,4 @@
-@(user: User, companyOpt: Option[Company], account: Option[Account], users: Seq[User])(implicit pageContext: PageContext)
+@(user: User, company: Company, account: Account, users: Seq[User])(implicit pageContext: PageContext)
 
 @main("Store Locator Dashboard") {
 
@@ -6,8 +6,6 @@
     @views.html.fragments.user(user)
 
     <h2>Company Info</h2>
-    @for(company <- companyOpt) {
-        @views.html.fragments.company(company, account, users)
-    }
+    @views.html.fragments.company(company, Some(account), users)
 
 }
